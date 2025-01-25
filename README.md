@@ -16,12 +16,9 @@ A demonstration of OAuth 2.0 authentication with GitHub using TypeScript.
 
 2. Configure Environment Variables
    - Copy `.env.example` to `.env`
-   - Fill in your GitHub OAuth credentials:
-     ```
-     GITHUB_CLIENT_ID=your_client_id_here
-     GITHUB_CLIENT_SECRET=your_client_secret_here
-     REDIRECT_URI=http://localhost:3000/callback
-     SESSION_SECRET=your_session_secret_here
+   - Fill in your GitHub OAuth credentials and generate a session secret (you can use this command in a bash window):
+     ```bash
+     openssl rand -hex 32
      ```
 
 3. Install Dependencies
@@ -44,15 +41,8 @@ Run Vite:
 npm run dev
 ```
 
-Run the compiled server:
+Run the server:
 ```bash
-# Navigate to your backend directory (where server.ts is)
-# First compile:
-npx tsc
-# Then run the compiled server:
-node dist/server.js
-
-# Or if you have a start script in package.json:
 npm run start
 ```
 
