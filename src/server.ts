@@ -48,6 +48,7 @@ app.get('/login', (req: Request, res: Response) => {
 app.get('/callback', (async (req: Request<{}, {}, {}, { code?: string, state?: string }>, res: Response) => {
   const { code, state } = req.query;
   
+  // Validate the request parameters (code and state)
   if (!code || typeof code !== 'string' || !state || typeof state !== 'string') {
     return res.status(400).send('Invalid request parameters');
   }
@@ -58,11 +59,14 @@ app.get('/callback', (async (req: Request<{}, {}, {}, { code?: string, state?: s
   }
 
   try {
+    // Get the access token
     const token = await oauthClient.getAccessToken(code);
     req.session.token = token;
     res.redirect('/dashboard');
   } catch (error) {
+    // Log the error
     console.error('Authentication error:', error);
+    // Send a user-friendly error message
     res.status(500).send('Authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }) as RequestHandler);

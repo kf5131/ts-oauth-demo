@@ -1,6 +1,6 @@
 # TypeScript OAuth GitHub Demo
 
-A demonstration of OAuth 2.0 authentication with GitHub using TypeScript.
+A demonstration of OAuth 2.0 authentication with GitHub using TypeScript. This is a simple server that allows users to login with their GitHub account and see a list of their repositories. It uses the GitHub API to get the list of repositories. 
 
 ## Setup
 
