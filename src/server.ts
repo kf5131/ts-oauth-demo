@@ -44,29 +44,46 @@ app.get('/login', (req: Request, res: Response) => {
   res.redirect(authUrl);
 });
 
-// Callback route
+// Validation function
+const validateCallbackParams = (code: unknown, state: unknown, sessionState: string | undefined): { 
+  isValid: boolean; 
+  error?: string 
+} => {
+  if (!code || typeof code !== 'string') {
+    return { isValid: false, error: 'Invalid or missing code parameter' };
+  }
+  if (!state || typeof state !== 'string') {
+    return { isValid: false, error: 'Invalid or missing state parameter' };
+  }
+  if (state !== sessionState) {
+    return { isValid: false, error: 'State parameter mismatch' };
+  }
+  return { isValid: true };
+};
+
+// Token retrieval function
+const getAndStoreToken = async (
+  code: string, 
+  session: Request['session']
+): Promise<void> => {
+  const token = await oauthClient.getAccessToken(code);
+  session.token = token;
+};
+
+// Updated callback route
 app.get('/callback', (async (req: Request<{}, {}, {}, { code?: string, state?: string }>, res: Response) => {
   const { code, state } = req.query;
   
-  // Validate the request parameters (code and state)
-  if (!code || typeof code !== 'string' || !state || typeof state !== 'string') {
-    return res.status(400).send('Invalid request parameters');
-  }
-
-  // Verify state to prevent CSRF
-  if (state !== req.session.state) {
-    return res.status(400).send('Invalid state parameter');
+  const validation = validateCallbackParams(code, state, req.session.state);
+  if (!validation.isValid) {
+    return res.status(400).send(validation.error);
   }
 
   try {
-    // Get the access token
-    const token = await oauthClient.getAccessToken(code);
-    req.session.token = token;
+    await getAndStoreToken(code as string, req.session);
     res.redirect('/dashboard');
   } catch (error) {
-    // Log the error
     console.error('Authentication error:', error);
-    // Send a user-friendly error message
     res.status(500).send('Authentication failed: ' + (error instanceof Error ? error.message : 'Unknown error'));
   }
 }) as RequestHandler);
